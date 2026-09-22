@@ -420,17 +420,22 @@
   white-space: nowrap;
 }
 .lang-btn {
-  border: 1px solid currentColor;
+  border: 1px solid #c9a45c;
   background: transparent;
-  color: inherit;
+  color: #ffffff;
   border-radius: 20px;
-  padding: 5px 10px;
+  padding: 6px 12px;
   cursor: pointer;
   font-weight: 600;
+  font-size: 13px;
 }
 .lang-btn.active {
-  background: currentColor;
-  color: white;
+  background: #c9a45c;
+  color: #07172b;
+}
+.lang-btn:hover {
+  background: #c9a45c;
+  color: #07172b;
 }
 body.rtl {
   direction: rtl;
@@ -466,8 +471,8 @@ body.rtl .language-switcher {
       <li><a href="#domaines">Domaines d'intervention</a></li>
       <li><a href="#contact">Contact</a></li>
       <li class="language-switcher">
-        <button type="button" class="lang-btn active" data-lang="fr">FR</button>
-        <button type="button" class="lang-btn" data-lang="ar">العربية</button>
+        <button type="button" id="lang-fr" class="lang-btn active" onclick="applyLanguage('fr')">FR</button>
+        <button type="button" id="lang-ar" class="lang-btn" onclick="applyLanguage('ar')">العربية</button>
       </li>
     </ul>
   </nav>
@@ -791,8 +796,7 @@ body.rtl .language-switcher {
 
 
 <script>
-(function () {
-  const translations = {
+const translations = {
     nav: [
       ["Accueil", "الرئيسية"],
       ["Le Cabinet", "المكتب"],
@@ -918,76 +922,88 @@ body.rtl .language-switcher {
     ]
   };
 
-  function setText(el, value) {
-    if (el) el.textContent = value;
-  }
+function setText(el, value) {
+  if (el) el.textContent = value;
+}
 
-  function applyLanguage(lang) {
-    const ar = lang === "ar";
-    document.documentElement.lang = lang;
-    document.title = ar
-      ? "الأستاذة زغّان لمياء حُسيني | مكتب محاماة في تازمالت، بجاية"
-      : "Maître ZEGGANE Lamia épouse HOCINI | Avocate à Tazmalt, Béjaïa";
-    document.body.classList.toggle("rtl", ar);
-    document.body.dir = ar ? "rtl" : "ltr";
+function applyLanguage(lang) {
+  const ar = lang === "ar";
+  document.documentElement.lang = lang;
+  document.documentElement.dir = ar ? "rtl" : "ltr";
+  document.title = ar
+    ? "الأستاذة زغّان لمياء حُسيني | مكتب محاماة في تازمالت، بجاية"
+    : "Maître ZEGGANE Lamia épouse HOCINI | Avocate à Tazmalt, Béjaïa";
 
-    document.querySelectorAll("header nav ul > li:not(.language-switcher) > a")
-      .forEach((el, i) => setText(el, translations.nav[i][ar ? 1 : 0]));
+  document.body.classList.toggle("rtl", ar);
+  document.body.dir = ar ? "rtl" : "ltr";
 
-    const hero = document.querySelector(".hero");
+  document.querySelectorAll("header nav ul > li:not(.language-switcher) > a")
+    .forEach((el, i) => setText(el, translations.nav[i][ar ? 1 : 0]));
+
+  const hero = document.querySelector(".hero");
+  if (hero) {
     setText(hero.querySelector("h2"), translations.hero.h2[ar ? 1 : 0]);
     setText(hero.querySelector("p"), translations.hero.p[ar ? 1 : 0]);
-    setText(hero.querySelectorAll(".buttons .btn")[0], translations.hero.buttons[ar ? 1 : 0]);
-    setText(hero.querySelectorAll(".buttons .btn")[1], translations.hero.domains[ar ? 1 : 0]);
+    const heroButtons = hero.querySelectorAll(".buttons .btn");
+    if (heroButtons[0]) setText(heroButtons[0], translations.hero.buttons[ar ? 1 : 0]);
+    if (heroButtons[1]) setText(heroButtons[1], translations.hero.domains[ar ? 1 : 0]);
+  }
 
-    const about = document.querySelector(".about");
+  const about = document.querySelector(".about");
+  if (about) {
     setText(about.querySelector(".section-title span"), translations.about.label[ar ? 1 : 0]);
     setText(about.querySelector(".section-title h2"), translations.about.title[ar ? 1 : 0]);
-    about.querySelectorAll(".about-content p").forEach((el, i) =>
-      setText(el, translations.about.paragraphs[i][ar ? 1 : 0])
-    );
+    about.querySelectorAll(".about-content p").forEach((el, i) => {
+      if (translations.about.paragraphs[i]) setText(el, translations.about.paragraphs[i][ar ? 1 : 0]);
+    });
+  }
 
-    const domains = document.querySelector("#domaines");
+  const domains = document.querySelector("#domaines");
+  if (domains) {
     setText(domains.querySelector(".section-title span"), translations.domains.label[ar ? 1 : 0]);
     setText(domains.querySelector(".section-title h2"), translations.domains.title[ar ? 1 : 0]);
     setText(domains.querySelector(".section-title p"), translations.domains.intro[ar ? 1 : 0]);
-
     domains.querySelectorAll(".card").forEach((card, i) => {
       const t = translations.domains.cards[i];
+      if (!t) return;
       setText(card.querySelector("h3"), t.title[ar ? 1 : 0]);
-      card.querySelectorAll("li").forEach((li, j) => setText(li, t.items[j][ar ? 1 : 0]));
+      card.querySelectorAll("li").forEach((li, j) => {
+        if (t.items[j]) setText(li, t.items[j][ar ? 1 : 0]);
+      });
     });
+  }
 
-    const contact = document.querySelector(".contact");
+  const contact = document.querySelector(".contact");
+  if (contact) {
     setText(contact.querySelector(".section-title span"), translations.contact.label[ar ? 1 : 0]);
     setText(contact.querySelector(".section-title h2"), translations.contact.title[ar ? 1 : 0]);
     setText(contact.querySelector(".section-title p"), translations.contact.intro[ar ? 1 : 0]);
     const boxes = contact.querySelectorAll(".contact-box");
-    setText(boxes[0].querySelector("h3"), translations.contact.phone[ar ? 1 : 0]);
-    setText(boxes[1].querySelector("h3"), translations.contact.email[ar ? 1 : 0]);
-    setText(boxes[2].querySelector("h3"), translations.contact.address[ar ? 1 : 0]);
-    setText(contact.querySelectorAll(".buttons .btn")[0], translations.contact.call[ar ? 1 : 0]);
-    setText(contact.querySelectorAll(".buttons .btn")[1], translations.contact.mail[ar ? 1 : 0]);
-
-    const footerPs = document.querySelectorAll("footer p");
-    setText(footerPs[0], translations.footer[0][ar ? 1 : 0]);
-    setText(footerPs[1], translations.footer[1][ar ? 1 : 0]);
-
-    document.querySelectorAll(".lang-btn").forEach(btn =>
-      btn.classList.toggle("active", btn.dataset.lang === lang)
-    );
-
-    try { localStorage.setItem("siteLanguage", lang); } catch (e) {}
+    if (boxes[0]) setText(boxes[0].querySelector("h3"), translations.contact.phone[ar ? 1 : 0]);
+    if (boxes[1]) setText(boxes[1].querySelector("h3"), translations.contact.email[ar ? 1 : 0]);
+    if (boxes[2]) setText(boxes[2].querySelector("h3"), translations.contact.address[ar ? 1 : 0]);
+    const contactButtons = contact.querySelectorAll(".buttons .btn");
+    if (contactButtons[0]) setText(contactButtons[0], translations.contact.call[ar ? 1 : 0]);
+    if (contactButtons[1]) setText(contactButtons[1], translations.contact.mail[ar ? 1 : 0]);
   }
 
-  document.querySelectorAll(".lang-btn").forEach(btn => {
-    btn.addEventListener("click", () => applyLanguage(btn.dataset.lang));
-  });
+  const footerPs = document.querySelectorAll("footer p");
+  if (footerPs[0]) setText(footerPs[0], translations.footer[0][ar ? 1 : 0]);
+  if (footerPs[1]) setText(footerPs[1], translations.footer[1][ar ? 1 : 0]);
 
+  const fr = document.getElementById("lang-fr");
+  const arBtn = document.getElementById("lang-ar");
+  if (fr) fr.classList.toggle("active", !ar);
+  if (arBtn) arBtn.classList.toggle("active", ar);
+
+  try { localStorage.setItem("siteLanguage", lang); } catch (e) {}
+}
+
+window.addEventListener("DOMContentLoaded", function() {
   let saved = "fr";
   try { saved = localStorage.getItem("siteLanguage") || "fr"; } catch (e) {}
   applyLanguage(saved);
-})();
+});
 </script>
 
 </body>
